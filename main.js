@@ -25,7 +25,7 @@ const createWindow = () => {
       filters: [
         {
           name: "Images",
-          extensions: ["jpg", "png", "JPG"]
+          extensions: ["jpg", "png"]
         }
       ]
     });
@@ -38,10 +38,10 @@ const createWindow = () => {
       img
         .cover(350, 350)
         .quality(100)
-        // .normalize()
+        .normalize()
         .color([
-          // {apply: 'desaturate', params: [25]}
-          { apply: "blue", params: [25] }
+          { apply: "blue", params: [25] },
+          { apply: "red", params: [10] }
         ])
         .write(`.cache/${id}.jpg`, () => {
           win.webContents.send(
@@ -63,9 +63,11 @@ const createWindow = () => {
 app.on("ready", createWindow);
 app.on("will-quit", e => {
   e.preventDefault();
-  const cacheDir = fs.readdirSync(".cache");
-  cacheDir.forEach(element => {
-    fs.unlinkSync(`.cache/${element}`);
-  });
+  if (fs.existsSync(".cache")) {
+    const cacheDir = fs.readdirSync(".cache");
+    cacheDir.forEach(element => {
+      fs.unlinkSync(`.cache/${element}`);
+    });
+  }
   app.quit()
 });
