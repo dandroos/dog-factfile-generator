@@ -5,6 +5,7 @@ const path = require("path");
 const Jimp = require("jimp");
 const PDFDocument = require("pdfkit");
 const uniqid = require("uniqid");
+const generatePDF = require("./modules/generatePDF")
 
 // Hot reload!
 require("electron-reload")(__dirname);
@@ -12,6 +13,8 @@ require("electron-reload")(__dirname);
 const createWindow = () => {
   let win = new BrowserWindow({
     // fullscreen: true,
+    title: 'FDR Dog Factfile Generator',
+    backgroundColor: '#52bbb4',
     webPreferences: {
       nodeIntegration: true
     }
@@ -51,6 +54,23 @@ const createWindow = () => {
         });
     });
   });
+
+  ipcMain.on("generate", (e, arg)=>{
+    let filePath = dialog.showSaveDialogSync(win, {
+      title: 'Save PDF...',
+      filters: [
+        {
+          name: "PDF Documents",
+          extensions: ["pdf"]
+        }
+      ]
+    })
+    if(!filePath.match(/\.pdf$/g)){
+      filePath += '.pdf'
+    }
+    generatePDF(arg.data, filePath)
+  })
+
   ipcMain.on("test", (e, arg) => {
     const doc = new PDFDocument();
     doc.pipe(fs.createWriteStream("test.pdf"));
